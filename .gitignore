@@ -1,0 +1,27 @@
+# Data: never commit patient data
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Python and tooling
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets and artifacts
+.env
+
+# Training artifacts (large intermediate files)
+*.pkl
+*.h5
+*.keras
+saved_model/
+checkpoints/
+
+# OS clutter
+.DS_Store
+Thumbs.db
