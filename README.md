@@ -24,22 +24,25 @@ Train a lightweight model on the FallAllD dataset for use in an waist accelerome
 | Random forest (200 trees) | 0.90 ± 0.06 | 0.95 ± 0.02 | 0.98 ± 0.01 |
 | Random forest (10 trees, depth 5) | 0.90 ± 0.06 | 0.90 ± 0.02 | 0.97 ± 0.01 |
 | Decision tree (depth 4) | 0.90 ± 0.06 | 0.87 ± 0.02 | 0.91 ± 0.02 |
+| **Random forest (10 trees, depth 5), 5 features** | 0.91 ± 0.07 |	0.89 ± 0.01	| 0.96 ± 0.02 |
 
-The small forest has 450 nodes in total, against about 25,000 for the 200-tree forest, for no decrease in sensitivity and ROC AUC (diference within the error) and a significant but acceptable decrease in 	specificity, which makes it the candidate for the microcontroller.
+The small forest has 450 nodes in total, against about 25,000 for the 200-tree forest, for no decrease in sensitivity and ROC AUC (diference within the error) and a significant but acceptable decrease in specificity, which makes it the candidate for the microcontroller.
 
-**Decision threshold** (small forest, out-of-fold predictions on the working set, 356 falls and 934 ADL windows):
+The 5 features (`all_mean`, `all_max`, `pre_std`, `all_min`, `pre_max`) were chosen from importance rankings computed on the same working set used for cross-validation, so these scores are slightly optimistic.
+
+**Decision threshold** (small forest, 5 features, out-of-fold predictions on the working set, 356 falls and 934 ADL windows):
 
 | Threshold | Sensitivity | Specificity | Missed falls | False alarms |
 | -------- | ------- | ----------- | ------- | ------- |
-| 0.3 | 0.98 | 0.82 | 7 | 169 |
-| 0.4 | 0.95 | 0.86 | 17 | 135 |
-| 0.5 | 0.91 | 0.90 | 33 | 98 |
-| 0.6 | 0.87 | 0.93 | 48 | 66 |
-| 0.7 | 0.82 | 0.95 | 65 | 50 |
+| 0.3 | 0.95 | 0.81 | 7 | 169 |
+| 0.4 | 0.94 | 0.85 | 17 | 135 |
+| 0.5 | 0.92 | 0.89 | 33 | 98 |
+| 0.6 | 0.88 | 0.92 | 48 | 66 |
+| 0.7 | 0.82 | 0.94 | 65 | 50 |
 
-**With a peak trigger**: The intended design is event-triggered: a peak of at least 2.67 g (the 5th percentile of fall peaks) starts the classifier. At a model threshold of 0.4 this catches 330 of 356 falls (92.7%) and produces 109 false alarms (specificity 88.3%). Without the trigger the same model catches 339 falls and produces 135 false alarms. So the trigger removes about a fifth of the false alarms at the cost of 9 more missed falls.
+**With a peak trigger**: The intended design is event-triggered: a peak of at least 2.67 g (the 5th percentile of fall peaks) starts the classifier. At a model threshold of 0.4 this catches 328 of 356 falls (92.1%) and produces 100 false alarms (specificity 89.3%). Without the trigger the same model catches 333 falls and produces 139 false alarms, so the trigger removes about 28% of the false alarms at the cost of 5 more missed falls.
 
-**What causes the false alarms**: About 19% of ADL windows reach the trigger, and the model flags about 61% of those (109 of 179). Jumping (45), stumbling (15) and failing to stand up (12) account for 72 of the 109. A likely reason is that acceleration magnitude carries no information about direction or posture, so a hard landing and a fall can look alike. This is a hypothesis that has not been tested yet.
+**What causes the false alarms**: About 19% of ADL windows reach the trigger, and the model flags about 56% of those (100 of 179). By activity: jogging and fast walking 31, jumping 23, stumbling 15, failing to stand up 13, stairs 9, and lying down, turning while lying, sitting down and standing up 9. With all 12 features the total was similar (109), but jumping accounted for 45 and jogging for 18, so the mix of errors depends on the feature set. A likely reason for these false alarms is that acceleration magnitude carries no information about direction or posture, so a hard landing and a fall can look alike. This is a hypothesis that has not been tested yet.
 
 ## Limitations
 
@@ -65,7 +68,7 @@ The small forest has 450 nodes in total, against about 25,000 for the 200-tree f
 
 ## Getting the Data
 
-The dataset is not include, fear over copywrite issues. Download it from IEEE DataPort (free account needed) and place the files with the scrips (importantly `FallAllD_2_PYTHON_Structure.py`) in `data/raw/`, else you may need to change diretory on the scrips and notebook. The notebook runs the script, which parses all 6,605 recordings and writes `data/processed/FallAllD.pkl`. The rest of the notebook loads that file.
+The dataset is not include, fear over copywrite issues. Download it from IEEE DataPort (free account needed) and place the files with the scrips (importantly `FallAllD_2_PYTHON_Structure.py`) in `data/raw/`, else you may need to change diretory on the scrips and notebook. The notebook runs the script, which parses all 6,605 recordings and writes `data/processed/FallAllD.pkl` and `data/processed/FallAllD.h5`. The rest of the notebook loads the `.pkl` file. Only load pickle files you generated yourself, because loading a pickle can execute code.
 
 ## Run
 
