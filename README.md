@@ -44,6 +44,19 @@ The 5 features (`all_mean`, `all_max`, `pre_std`, `all_min`, `pre_max`) were cho
 
 **What causes the false alarms**: About 19% of ADL windows reach the trigger, and the model flags about 56% of those (100 of 179). By activity: jogging and fast walking 31, jumping 23, stumbling 15, failing to stand up 13, stairs 9, and lying down, turning while lying, sitting down and standing up 9. With all 12 features the total was similar (109), but jumping accounted for 45 and jogging for 18, so the mix of errors depends on the feature set. A likely reason for these false alarms is that acceleration magnitude carries no information about direction or posture, so a hard landing and a fall can look alike. This is a hypothesis that has not been tested yet.
 
+## Held out evaluation
+
+The 4 held-out participants (110 falls and 398 ADL windows) were evaluated once, with everything fixed beforehand: the 5 features, the small forest, a model threshold of 0.4 and a trigger of 2.67 g. The system caught 105 of 110 falls (sensitivity 0.95) and raised 30 false alarms on 398 ADL windows (specificity 0.92).
+
+| Participant | Falls caught | False alarms (ADL windows) | 
+| -------- | ------- | ----------- | 
+| 1 | 	27 / 28 | 	4 / 88 | 
+| 11 | 	17 / 19 | 6 / 79 | 
+| 13 | 	61 / 63 | 9 / 114 | 
+| 14 | 	no falls | 11 / 117 | 
+
+These results are in line with cross-validation (0.92 sensitivity and 0.89 specificity with the trigger). They are slightly higher, which is within what a sample of 4 people can produce by chance, and no participant stands out as a failure. Participant 14 has no falls in the held-out set, so only 3 people contribute to the sensitivity. Like everything above, these are per-window results on simulated falls with windows centered on the peak, not an estimate of real-world performance.
+
 ## Limitations
 
 - Falls were simulated by 15 healthy volunteers, so real falls in older adults will differ.
@@ -52,12 +65,9 @@ The 5 features (`all_mean`, `all_max`, `pre_std`, `all_min`, `pre_max`) were cho
 - Only a few participants are held out, so any single result will be noisy.
 - This is a prototype, meant for a small uni project not a medical device.
 
-## Setup
+## Status
 
-- Evaluate once on the held-out participants, with per-subject results.
-- Measure the false-alarm rate on continuous recordings.
-- Export the small model to C and run it on the Arduino.
-- *Maybe for future refining*: Add posture-change features (direction of gravity before vs. after impact) using the three axes, which should help separate jumps from falls. This makes the model depend on how the board is mounted.
+The model and its evaluation are finished. Deployment on an Arduino is future work. The exported header models/fall_model_emlearn.h has not been verified on a board.
 
 ## Repo layout
 
@@ -76,7 +86,7 @@ Python 3.11 is recommended.
 
     python -m venv .venv
     source .venv/Scripts/activate      # Git Bash on Windows;
-    python -m pip install numpy pandas matplotlib scipy scikit-learn tables jupyter ipykernel
+    python -m pip install numpy pandas matplotlib scipy scikit-learn tables jupyter ipykernel emlearn
     jupyter notebook
 
 Then open the notebook in `notebooks/` and run it from the top.
@@ -87,6 +97,9 @@ If you use the data, cite the dataset paper:
 
 M. Saleh, M. Abbas and R. L. B. Jeannès, "FallAllD: An Open Dataset of Human Falls and Activities of Daily Living for Classical and Deep Learning Applications," IEEE Sensors Journal, vol. 21, pp. 1849-1858, 2021.
 
-## Author
+## Note on AI Assistance and Authorship
 
-Ruben Barbosa
+I believe it is important to be transparent about how this project was developed. I used Claude, an AI assistant, for explanations, code suggestions, and drafting documentation. I ran and reviewed the code, and I take responsibility for the analysis and conclusions, which are largely my own.
+Although I understand most of the code and can debug and modify it largely independently, I relied on AI assistance more than I would have liked when it came to implementing solutions, particularly deciding what to write and how to translate ideas into code. Consequently, I do not believe this project fully represents my current ability to develop a solution independently from scratch, and I would rather acknowledge that limitation than give a potentially misleading impression of my skills.
+I consider this project both an accomplishment and a learning resource. I intend to revisit the implementation, deepen my understanding of the code and the models involved, and improve my ability to implement solutions independently, particularly before undertaking my thesis.
+I expect to continue using AI tools in future projects, but I want to become increasingly capable of making implementation decisions independently and using AI as an aid rather than relying on it to bridge gaps in my practical experience. As the author of this project, I take responsibility for the work while acknowledging the role AI assistance played in producing it.
